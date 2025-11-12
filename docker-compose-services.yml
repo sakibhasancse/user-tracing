@@ -1,0 +1,42 @@
+# version: '3.8'
+
+services:
+  order-service:
+    build: ./order-service
+    environment:
+      KAFKA_BROKERS: "kafka1:9092,kafka2:9093"
+    ports:
+      - "4001:4001"
+    networks:
+      - kafka-network
+
+  email-service-1:
+    build: ./email-service
+    environment:
+      KAFKA_BROKERS: "kafka1:9092,kafka2:9093"
+      GROUP_ID: "email-group"
+    networks:
+      - kafka-network
+  email-service-2:
+    build: ./email-service
+    environment:
+      KAFKA_BROKERS: "kafka1:9092,kafka2:9093"
+      GROUP_ID: "email-group"
+    networks:
+      - kafka-network
+
+  user-tracker:
+    build: ./user-tracker
+    ports:
+      - "3000:3000"
+    environment:
+      KAFKA_BROKERS: "kafka1:9092,kafka2:9093"
+      NODE_ENV: development
+    volumes:
+      - ./user-tracker/src:/app/src
+    networks:
+      - kafka-network
+
+networks:
+  kafka-network:
+    external: true
